@@ -1,0 +1,22 @@
+1-web scraping for job offers:
+    specific functions to scrap dedicted websites(linkedin, indeed)
+    general scraping functions
+    fall back to text pasting
+
+2-cv extraction:
+    dedicted functions to extract text according to file type
+    organize in sections
+
+3-ATS format mode:
+    give warnings to respect the ats standard format
+
+4-match score:
+    semantic score + keyword score
+    category breakdown scoring
+    gap analysis
+
+5-generate optimized resume:
+
+6-auto application:
+
+7-enterprise features
