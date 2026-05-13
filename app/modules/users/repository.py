@@ -35,21 +35,15 @@ class UserRepository:
         
     def check_if_email_exists(self, new_email: str)->bool:
         return self.db.query(User).filter(User.email == new_email).first()
-        if email_taken:
-                return False
-        return True
+        
 
     def check_if_username_exists(self, new_username: str)->bool:
         return self.db.query(User).filter(User.email == new_username).first()
-        if username_taken:
-                return False
-        return True
+        
     
     def fetch_user(self, user_id: int)->User:
         return self.db.query(User).filter(User.id == user_id).first()
-        if not user:
-            raise UserDoesNotExist("this user could not be found")
-        return user
+        
 
     def get_user_by_email(self, email: str)->User:
         return self.db.query(User).filter(User.email == email).first()

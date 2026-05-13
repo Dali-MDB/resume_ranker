@@ -5,7 +5,7 @@ from typing import Annotated, List
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import JSONResponse
-
+from app.core.security import oauth2_scheme
 
 router = APIRouter(
     prefix='/users',
@@ -51,3 +51,8 @@ async def delete_user(user_id: int, service: UserService = Depends()):
             'message' : 'the user has been deleted successfully'
         }
     )
+
+
+@router.get('/protected')
+async def protected(token: str = Depends(oauth2_scheme)):
+    return JSONResponse({'details':'you are authenticated'},200)
