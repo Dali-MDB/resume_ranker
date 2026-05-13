@@ -14,6 +14,10 @@ class UserDisplay(UserBase):
     id : int
     date_joined : datetime
 
+class UserUpdate(UserBase):
+    email: str | None = None
+    username: str | None = None
+
 
 
 
