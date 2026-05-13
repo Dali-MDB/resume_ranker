@@ -1,4 +1,4 @@
-from core.dependencies import sessionDep
+from app.core.dependencies import sessionDep
 from .models import User
 from .schemas import UserCreate, UserUpdate, UserDisplay
 from sqlalchemy import or_

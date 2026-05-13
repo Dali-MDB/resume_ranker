@@ -1,12 +1,12 @@
 from .repository import UserRepository
-from core.dependencies import sessionDep
+from app.core.dependencies import sessionDep
 from .schemas import UserCreate, UserDisplay, UserUpdate
-from core.security import oauth2_scheme
+from app.core.security import oauth2_scheme
 from .exceptions import UserDoesNotExist, UserAlreadyExists, UserNameTakenException, EmailTakenException, AuthenticationFailed
 from fastapi import Depends
 from .models import User
 from typing import List, Annotated
-from core.security import pwd_context, create_access_token, verify_access_token
+from app.core.security import pwd_context, create_access_token, verify_access_token
 from fastapi.security import OAuth2PasswordRequestForm
 
 class UserService:

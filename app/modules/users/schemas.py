@@ -19,9 +19,9 @@ class UserUpdate(UserBase):
     username: str | None = None
 
 
-
-
-
+class RefreshTokenResponse(BaseModel):
+    access_token : str
+    token_type : str
 
 
 
