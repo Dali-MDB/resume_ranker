@@ -17,6 +17,7 @@ async def upload_resume_controller(
     match_score_service: MatchScoreService,
 ):
     job_description = web_scraping_service.scrape_job(job_url)
+    web_scraping_service.close()
 
     file_type = file.content_type.split("/")[1]
     if not file_type or file_type not in ["pdf", "docx"]:
