@@ -1,106 +1,30 @@
-from sentence_transformers import SentenceTransformer, util
-import numpy as np
-
-
+# services/match_score_service.py (Orchestrator)
+from .semantic_matcher import SemanticMatcher
+from .ats_checker import ATSChecker
+from .gap_analyzer import GapAnalyzer
+from .skills_extractor import SkillExtractor
 
 class MatchScoreService:
     def __init__(self):
-        self.model = SentenceTransformer('all-MiniLM-L6-v2')
-
-    def calculate_semantic_match(self, cv_text, job_text):
-        # Split into chunks (avoid 512 token limit)
-        cv_chunks = self.chunk_text(cv_text, max_length=500)
-        job_chunks = self.chunk_text(job_text, max_length=500)
-        
-        # Encode
-        cv_embeddings = self.model.encode(cv_chunks)
-        job_embeddings = self.model.encode(job_chunks)
-        
-        # Get max similarity between chunks
-        similarities = np.dot(cv_embeddings, job_embeddings.T)
-        max_similarities = np.max(similarities, axis=1)
-        
-        return np.mean(max_similarities) * 100
-
-    def chunk_text(self, text, max_length=500):
-        words = text.split()
-        chunks = []
-        for i in range(0, len(words), max_length):
-            chunks.append(' '.join(words[i:i+max_length]))
-        return chunks
+        self.semantic_matcher = SemanticMatcher()
+        self.ats_checker = ATSChecker()
+        self.gap_analyzer = GapAnalyzer()
+        self.skills_extractor = SkillExtractor()
     
-        
-    def check_length(self, cv_text: str, score:int):
-        words = len(cv_text.split())
-        new_warnings  = None
-        if words < 300:
-            new_warnings = "CV too short (<300 words)"
-            score -= 15
-        elif words > 800:
-            new_warnings = "CV may be too long for ATS (>800 words)"
-            score -= 10
-
-        return score, new_warnings
+    def calculate_semantic_match(self, cv_text: str, job_text: str) -> float:
+        return self.semantic_matcher.calculate_match(cv_text, job_text)
     
-    def check_headers(selfl, cv_text:str, score:int):
-        required_sections = ['experience', 'education', 'skills']
-        new_warnings = []
-        for section in required_sections:
-            if section not in cv_text:
-                new_warnings.append(f"Missing '{section}' section")
-                score -= 10
-        return score, new_warnings
+    def ats_simulation(self, cv_text: str) -> dict:
+        return self.ats_checker.analyze(cv_text)
     
-    def check_complex_formatting(self, cv_text:str, score:int):
-        new_warning = []
-        if 'table' in cv_text or 'column' in cv_text:
-            new_warning.append("Avoid tables/columns - ATS may misread")
-            score -= 20
-        return score, new_warning
-
-    def check_contact_info(self, cv_text:str, score:int):
-        new_warning = []
-        if '@' not in cv_text or ('phone' not in cv_text or 'tel' not in cv_text):
-            new_warning.append("Contact info incomplete or missing")
-            score -= 15
-        return score, new_warning
-
-    def ats_simulation(self, cv_text:str):
-        warnings = []
-        score = 100
-
-        #convert into lower
-        cv_text= cv_text.lower()
-        
-       
-        
-        #check length
-        score, new_warnings = self.check_length(cv_text, score)
-        if new_warnings:
-            warnings.append(new_warnings)
-        
-        
-        #check Standard section headers
-        score, new_warnings = self.check_headers(cv_text, score)
-        if new_warnings:
-            for warning in new_warnings:
-                warnings.append(warning)
-        
-        
-        #check Complex formatting indicators
-        score, new_warning = self.check_complex_formatting(cv_text, score)
-        if new_warning:
-            warnings.append(new_warning)
-        
-      
-        #check Contact info
-        score, new_warning = self.check_contact_info(cv_text, score)
-        if new_warning:
-            warnings.append(new_warning)
-        
+    def analyze_gaps(self, cv_text: str, job_text: str) -> dict:
+        job_skills = self.skills_extractor.extract_skills(job_text)
+        return self.gap_analyzer.analyze(cv_text, job_text, job_skills)
+    
+    def full_analysis(self, cv_text: str, job_text: str) -> dict:
+        """Complete analysis combining all services"""
         return {
-            'ats_score': max(0, score),
-            'warnings': warnings,
-            'is_ats_friendly': score >= 70
+            'semantic_match': self.calculate_semantic_match(cv_text, job_text),
+            'ats_analysis': self.ats_simulation(cv_text),
+            'gap_analysis': self.analyze_gaps(cv_text, job_text)
         }
-        
