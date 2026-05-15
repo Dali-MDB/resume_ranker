@@ -3,6 +3,8 @@ from app.modules.users.routes import router as user_router
 from contextlib import asynccontextmanager
 from app.core.database import engine, Base
 import asyncio
+from fastapi.staticfiles import StaticFiles
+from app.api.resume_router import router as resume_router
 
 @asynccontextmanager
 async def life_span(app: FastAPI):
@@ -12,8 +14,10 @@ async def life_span(app: FastAPI):
 
     
 app = FastAPI(lifespan=life_span)
-
+app.mount("/media", StaticFiles(directory="media"), name="media")
 app.include_router(user_router)
+app.include_router(resume_router)
+
 
 
 
